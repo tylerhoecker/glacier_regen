@@ -1,13 +1,21 @@
 library(tidyverse)
 
+data_files <- paste0('../data/glac_plot_data_',c(2019,2020),'.csv') 
+plot_df <- map_df(data_files, read_csv) 
 
-plot_df <- read_csv('data/glac_plot_data_2019.csv') 
+gen_plot_df <- plot_df %>% 
+  select(today,starts_with(c('plot','photos','phys','canopy','seeds')))
 
-postfire_df <- plot_df %>% 
-  dplyr::select(starts_with('plot'), starts_with('seedlings'), phys.phys_elev, 
+
+  pivot_longer(c(starts_with('groundcover','vegcover')))
+  
+  
+  
+  dplyr::select(today, starts_with('plot'), starts_with('seedlings'), phys.phys_elev, 
                 -contains('header'), -contains('other'), -contains('end')) %>% 
-  gather(key, value, -contains('length'), -starts_with('plot'), -starts_with('phys')) %>% 
-  separate(key, into = c('del1','del2','del3','del4','transect','year','sp'), sep = "_") %>% 
+  gather(key, value, -today, -contains('length'), -starts_with('plot'), -starts_with('phys')) %>% 
+  separate(key, into = c('del1','del2','del3','del4','transect','year','sp'), sep = "_") %>%
+  select(c('today', 'del1','del2','del3','del4','transect','year','sp'))
   dplyr::select(-starts_with('del'), length_t1 = seedlings_t1.seedlings_t1_length, length_t2 = seedlings_t2.seedlings_t2_length) %>%
   mutate_at(vars(length_t1, length_t2), ~ ifelse(is.na(.), 28, .)) %>% 
   mutate(seedling_count = if_else(is.na(value), 0, value)) %>% 

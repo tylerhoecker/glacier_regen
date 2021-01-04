@@ -1,11 +1,14 @@
 library(tidyverse)
 
-plot_df <- read_csv('data/glac_plot_data_2019.csv') 
+data_files <- paste0('../data/glac_plot_data_',c(2019,2020),'.csv') 
+plot_df <- map_df(data_files, read_csv) 
 
 prefire_df <- plot_df %>% 
   dplyr::select(starts_with('plot'), starts_with('prefire'), phys.phys_elev) %>% 
   gather(key, value, -prefire_n_quads, -starts_with('plot'), -starts_with('phys')) %>% 
-  separate(key, into = c('del1','del2','del3','del4','quad','tree','variable','other'), sep = "_") %>% 
+  separate(key, 
+           into = c('del1','del2','del3','del4','quad','tree','variable','other'), 
+           sep = "_") %>% 
   dplyr::select(-del1, -del2, -del3, -del4, other, -starts_with('plot.plot_'), -starts_with('plot.utm_')) %>%
   filter(!is.na(value)) %>% 
   # Must merge 'other' species, which are stored as separate rows
